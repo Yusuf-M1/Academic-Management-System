@@ -1,9 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 import mysql.connector
 from config import Config
-from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
-from datetime import date
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -370,7 +368,7 @@ def timetable():
     if request.method == 'POST':
         try:
             cursor.execute("""
-                INSERT INTO timetable (day_name, time_slot, subject, faculty_name, classroom, section, semester)
+                INSERT INTO timetable (day, time_slot, subject, faculty_name, classroom, section, semester)
                 VALUES (%s,%s,%s,%s,%s,%s,%s)
             """, (request.form['day_name'], request.form['time_slot'],
                   request.form['subject'], request.form['faculty_name'],
@@ -388,10 +386,22 @@ def timetable():
 
     query = "SELECT * FROM timetable WHERE 1=1"
     params = []
-    if day_filter: query += " AND day_name=%s"; params.append(day_filter)
-    if sec_filter: query += " AND section=%s"; params.append(sec_filter)
-    if sem_filter: query += " AND semester=%s"; params.append(sem_filter)
-    query += " ORDER BY FIELD(day_name,'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'), time_slot"
+    if day_filter:
+        query += " AND day=%s"
+        params.append(day_filter)
+    if sec_filter:
+        query += " AND section=%s"
+        params.append(sec_filter)
+    if sem_filter:
+        try:
+            query += " AND semester=%s"
+            params.append(int(sem_filter))
+        except (ValueError, TypeError):
+            pass
+    query += """ ORDER BY CASE day
+        WHEN 'Monday' THEN 1 WHEN 'Tuesday' THEN 2 WHEN 'Wednesday' THEN 3
+        WHEN 'Thursday' THEN 4 WHEN 'Friday' THEN 5 WHEN 'Saturday' THEN 6
+        ELSE 7 END, time_slot"""
 
     cursor.execute(query, params)
     records = cursor.fetchall()

@@ -96,7 +96,7 @@ CREATE TABLE IF NOT EXISTS internal_marks (
 -- ============================================================
 CREATE TABLE IF NOT EXISTS timetable (
     timetable_id INT AUTO_INCREMENT PRIMARY KEY,
-    day_name ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday') NOT NULL,
+    day ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday') NOT NULL,
     time_slot VARCHAR(20) NOT NULL,
     subject VARCHAR(100) NOT NULL,
     faculty_name VARCHAR(100) NOT NULL,

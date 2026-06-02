@@ -336,9 +336,6 @@ a { color: var(--primary); text-decoration: none; }
 .chart-container { position: relative; max-height: 300px; }
 
 /* --- LOGIN PAGE --- */
-.main-content:has(.login-page) {
-    padding: 0; max-width: none;
-}
 .login-page {
     min-height: 100vh;
     display: flex; align-items: center; justify-content: center;
