@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Attendance — AMS{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-calendar-check-fill"></i> Attendance Management</h1>
+</div>
+
+<!-- Mark Attendance -->
+<div class="form-card">
+    <h3><i class="bi bi-plus-circle-fill"></i> Mark Attendance</h3>
+    <form method="POST">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Student</label>
+                <select name="student_id" required>
+                    <option value="">Select Student</option>
+                    {% for s in students %}<option value="{{ s.student_id }}">{{ s.roll_number }} — {{ s.full_name }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Subject</label>
+                <input type="text" name="subject" required>
+            </div>
+            <div class="form-group">
+                <label>Date</label>
+                <input type="date" name="attendance_date" required>
+            </div>
+            <div class="form-group">
+                <label>Period</label>
+                <input type="number" name="period" min="1" max="8" required>
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select name="status" required>
+                    <option value="Present">Present</option>
+                    <option value="Absent">Absent</option>
+                    <option value="Late">Late</option>
+                </select>
+            </div>
+        </div>
+        <div class="btn-group">
+            <button type="submit" class="btn btn-success"><i class="bi bi-check-lg"></i> Record</button>
+        </div>
+    </form>
+</div>
+
+<!-- Filters -->
+<form class="filter-bar" method="GET">
+    <div class="form-group">
+        <label>Subject</label>
+        <input type="text" name="subject" value="{{ subj_filter }}">
+    </div>
+    <div class="form-group">
+        <label>Date</label>
+        <input type="date" name="date" value="{{ date_filter }}">
+    </div>
+    <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-funnel-fill"></i> Filter</button>
+    <a href="{{ url_for('attendance') }}" class="btn btn-sm" style="background:var(--text-muted);color:#fff;">Clear</a>
+</form>
+
+<!-- Attendance Stats -->
+{% if att_stats %}
+<div class="form-card">
+    <h3><i class="bi bi-graph-up"></i> Attendance Summary</h3>
+    <div class="table-wrapper mb-0">
+        <table class="data-table">
+            <thead><tr><th>Roll No</th><th>Name</th><th>Total</th><th>Present</th><th>Percentage</th></tr></thead>
+            <tbody>
+            {% for a in att_stats %}
+            <tr>
+                <td>{{ a.roll_number }}</td>
+                <td>{{ a.full_name }}</td>
+                <td>{{ a.total }}</td>
+                <td>{{ a.present }}</td>
+                <td>
+                    {% if a.percentage < 75 %}
+                    <span class="badge badge-low">{{ a.percentage }}%</span>
+                    {% else %}
+                    <span class="badge badge-present">{{ a.percentage }}%</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Records Table -->
+<div class="table-wrapper">
+    <table class="data-table">
+        <thead><tr><th>ID</th><th>Roll No</th><th>Student</th><th>Subject</th><th>Date</th><th>Period</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+        {% for r in records %}
+        <tr>
+            <td>{{ r.attendance_id }}</td>
+            <td>{{ r.roll_number }}</td>
+            <td>{{ r.full_name }}</td>
+            <td>{{ r.subject }}</td>
+            <td>{{ r.attendance_date }}</td>
+            <td>{{ r.period }}</td>
+            <td><span class="badge badge-{{ r.status|lower }}">{{ r.status }}</span></td>
+            <td>
+                <a href="{{ url_for('edit_attendance', id=r.attendance_id) }}" class="btn btn-warning btn-sm"><i class="bi bi-pencil-fill"></i></a>
+                <form action="{{ url_for('delete_attendance', id=r.attendance_id) }}" method="POST" style="display:inline;">
+                    <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash-fill"></i></button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% if not records %}
+    <div class="empty-state"><i class="bi bi-inbox"></i><p>No attendance records found.</p></div>
+    {% endif %}
+</div>
+{% endblock %}

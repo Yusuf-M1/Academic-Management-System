@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Internal Marks — AMS{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-journal-bookmark-fill"></i> Internal Marks Management</h1>
+</div>
+
+<!-- Add Marks -->
+<div class="form-card">
+    <h3><i class="bi bi-plus-circle-fill"></i> Add Marks Entry</h3>
+    <form method="POST">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Student</label>
+                <select name="student_id" required>
+                    <option value="">Select Student</option>
+                    {% for s in students %}<option value="{{ s.student_id }}">{{ s.roll_number }} — {{ s.full_name }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Subject</label>
+                <input type="text" name="subject" required>
+            </div>
+            <div class="form-group">
+                <label>Test Name</label>
+                <input type="text" name="test_name" placeholder="e.g. IA-1, Quiz-1" required>
+            </div>
+            <div class="form-group">
+                <label>Assignment Marks</label>
+                <input type="number" name="assignment_marks" step="0.01" min="0" value="0">
+            </div>
+            <div class="form-group">
+                <label>Quiz Marks</label>
+                <input type="number" name="quiz_marks" step="0.01" min="0" value="0">
+            </div>
+            <div class="form-group">
+                <label>Internal Exam Marks</label>
+                <input type="number" name="internal_exam_marks" step="0.01" min="0" value="0">
+            </div>
+        </div>
+        <div class="btn-group">
+            <button type="submit" class="btn btn-success"><i class="bi bi-plus-lg"></i> Add Marks</button>
+        </div>
+    </form>
+</div>
+
+<!-- Filter -->
+<form class="filter-bar" method="GET">
+    <div class="form-group">
+        <label>Filter by Subject</label>
+        <input type="text" name="subject" value="{{ subj_filter }}" placeholder="Subject name">
+    </div>
+    <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-funnel-fill"></i> Filter</button>
+    <a href="{{ url_for('marks') }}" class="btn btn-sm" style="background:var(--text-muted);color:#fff;">Clear</a>
+</form>
+
+<!-- Table -->
+<div class="table-wrapper">
+    <table class="data-table">
+        <thead><tr><th>ID</th><th>Roll No</th><th>Student</th><th>Subject</th><th>Test</th><th>Assign</th><th>Quiz</th><th>Internal</th><th>Total</th><th>Actions</th></tr></thead>
+        <tbody>
+        {% for r in records %}
+        <tr>
+            <td>{{ r.marks_id }}</td>
+            <td>{{ r.roll_number }}</td>
+            <td>{{ r.full_name }}</td>
+            <td>{{ r.subject }}</td>
+            <td>{{ r.test_name }}</td>
+            <td>{{ r.assignment_marks }}</td>
+            <td>{{ r.quiz_marks }}</td>
+            <td>{{ r.internal_exam_marks }}</td>
+            <td><strong>{{ r.total_marks }}</strong></td>
+            <td>
+                <a href="{{ url_for('edit_marks', id=r.marks_id) }}" class="btn btn-warning btn-sm"><i class="bi bi-pencil-fill"></i></a>
+                <form action="{{ url_for('delete_marks', id=r.marks_id) }}" method="POST" style="display:inline;">
+                    <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash-fill"></i></button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% if not records %}
+    <div class="empty-state"><i class="bi bi-inbox"></i><p>No marks records found.</p></div>
+    {% endif %}
+</div>
+{% endblock %}

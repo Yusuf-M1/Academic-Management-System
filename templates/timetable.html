@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Timetable — AMS{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-clock-fill"></i> Timetable Management</h1>
+</div>
+
+<!-- Add Entry -->
+<div class="form-card">
+    <h3><i class="bi bi-plus-circle-fill"></i> Add Timetable Entry</h3>
+    <form method="POST">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Day</label>
+                <select name="day_name" required>
+                    <option value="Monday">Monday</option>
+                    <option value="Tuesday">Tuesday</option>
+                    <option value="Wednesday">Wednesday</option>
+                    <option value="Thursday">Thursday</option>
+                    <option value="Friday">Friday</option>
+                    <option value="Saturday">Saturday</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Time Slot</label>
+                <input type="text" name="time_slot" placeholder="e.g. 9:00-10:00" required>
+            </div>
+            <div class="form-group">
+                <label>Subject</label>
+                <input type="text" name="subject" required>
+            </div>
+            <div class="form-group">
+                <label>Faculty Name</label>
+                <input type="text" name="faculty_name" required>
+            </div>
+            <div class="form-group">
+                <label>Classroom</label>
+                <input type="text" name="classroom" required>
+            </div>
+            <div class="form-group">
+                <label>Section</label>
+                <input type="text" name="section" required>
+            </div>
+            <div class="form-group">
+                <label>Semester</label>
+                <input type="number" name="semester" min="1" max="8" required>
+            </div>
+        </div>
+        <div class="btn-group">
+            <button type="submit" class="btn btn-success"><i class="bi bi-plus-lg"></i> Add Entry</button>
+        </div>
+    </form>
+</div>
+
+<!-- Filters -->
+<form class="filter-bar" method="GET">
+    <div class="form-group">
+        <label>Day</label>
+        <select name="day">
+            <option value="">All Days</option>
+            {% for d in ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'] %}
+            <option value="{{ d }}" {% if day_filter == d %}selected{% endif %}>{{ d }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Section</label>
+        <input type="text" name="section" value="{{ sec_filter }}">
+    </div>
+    <div class="form-group">
+        <label>Semester</label>
+        <input type="number" name="semester" value="{{ sem_filter }}" min="1" max="8">
+    </div>
+    <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-funnel-fill"></i> Filter</button>
+    <a href="{{ url_for('timetable') }}" class="btn btn-sm" style="background:var(--text-muted);color:#fff;">Clear</a>
+</form>
+
+<!-- Table -->
+<div class="table-wrapper">
+    <table class="data-table">
+        <thead><tr><th>Day</th><th>Time Slot</th><th>Subject</th><th>Faculty</th><th>Classroom</th><th>Section</th><th>Semester</th><th>Actions</th></tr></thead>
+        <tbody>
+        {% for r in records %}
+        <tr>
+            <td><strong>{{ r.day_name }}</strong></td>
+            <td>{{ r.time_slot }}</td>
+            <td>{{ r.subject }}</td>
+            <td>{{ r.faculty_name }}</td>
+            <td>{{ r.classroom }}</td>
+            <td>{{ r.section }}</td>
+            <td>{{ r.semester }}</td>
+            <td>
+                <form action="{{ url_for('delete_timetable', id=r.timetable_id) }}" method="POST" style="display:inline;">
+                    <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash-fill"></i></button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% if not records %}
+    <div class="empty-state"><i class="bi bi-inbox"></i><p>No timetable entries found.</p></div>
+    {% endif %}
+</div>
+{% endblock %}

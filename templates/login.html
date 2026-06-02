@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Login — Academic Management System{% endblock %}
+{% block content %}
+<div class="login-page">
+    <div class="login-card">
+        <div class="brand">
+            <i class="bi bi-mortarboard-fill"></i>
+            <h1>Academic Management System</h1>
+            <p>Sign in to manage academic records</p>
+        </div>
+        <form method="POST">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Enter username" required autofocus>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter password" required>
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-box-arrow-in-right"></i> Sign In</button>
+        </form>
+        <div class="login-footer">
+            Default credentials: <strong>admin</strong> / <strong>admin123</strong>
+        </div>
+    </div>
+</div>
+{% endblock %}

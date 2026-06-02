@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Edit Attendance — AMS{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-pencil-square"></i> Edit Attendance Record</h1>
+</div>
+<div class="form-card">
+    <form method="POST">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Student</label>
+                <select name="student_id" required>
+                    {% for s in students %}<option value="{{ s.student_id }}" {% if s.student_id == record.student_id %}selected{% endif %}>{{ s.roll_number }} — {{ s.full_name }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Subject</label>
+                <input type="text" name="subject" value="{{ record.subject }}" required>
+            </div>
+            <div class="form-group">
+                <label>Date</label>
+                <input type="date" name="attendance_date" value="{{ record.attendance_date }}" required>
+            </div>
+            <div class="form-group">
+                <label>Period</label>
+                <input type="number" name="period" value="{{ record.period }}" min="1" max="8" required>
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select name="status" required>
+                    <option value="Present" {% if record.status=='Present' %}selected{% endif %}>Present</option>
+                    <option value="Absent" {% if record.status=='Absent' %}selected{% endif %}>Absent</option>
+                    <option value="Late" {% if record.status=='Late' %}selected{% endif %}>Late</option>
+                </select>
+            </div>
+        </div>
+        <div class="btn-group">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Update</button>
+            <a href="{{ url_for('attendance') }}" class="btn btn-danger"><i class="bi bi-x-lg"></i> Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

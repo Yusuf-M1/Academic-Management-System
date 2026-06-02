@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block title %}Analytics — AMS{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-bar-chart-line-fill"></i> Performance Analytics</h1>
+</div>
+
+<!-- Charts -->
+<div class="charts-grid">
+    <div class="chart-card">
+        <h3><i class="bi bi-calendar-check-fill"></i> Attendance % by Student</h3>
+        <div class="chart-container">
+            <canvas id="attStudentChart"></canvas>
+        </div>
+    </div>
+    <div class="chart-card">
+        <h3><i class="bi bi-journal-bookmark-fill"></i> Avg Marks by Subject</h3>
+        <div class="chart-container">
+            <canvas id="marksSubjectChart"></canvas>
+        </div>
+    </div>
+    <div class="chart-card">
+        <h3><i class="bi bi-file-earmark-text-fill"></i> Assignment Completion</h3>
+        <div class="chart-container">
+            <canvas id="assignChart"></canvas>
+        </div>
+    </div>
+    <div class="chart-card">
+        <h3><i class="bi bi-folder-fill"></i> Project Status</h3>
+        <div class="chart-container">
+            <canvas id="projectChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Attendance Details Table -->
+{% if att_by_student %}
+<div class="form-card">
+    <h3><i class="bi bi-graph-up"></i> Student Attendance Details</h3>
+    <div class="table-wrapper mb-0">
+        <table class="data-table">
+            <thead><tr><th>Student</th><th>Attendance %</th><th>Status</th></tr></thead>
+            <tbody>
+            {% for a in att_by_student %}
+            <tr>
+                <td>{{ a.full_name }}</td>
+                <td>{{ a.pct }}%</td>
+                <td>
+                    {% if a.pct >= 75 %}
+                    <span class="badge badge-present">Good</span>
+                    {% else %}
+                    <span class="badge badge-low">Low Attendance</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Subject Performance Table -->
+{% if marks_by_subject %}
+<div class="form-card mt-4">
+    <h3><i class="bi bi-book-half"></i> Subject Performance Overview</h3>
+    <div class="table-wrapper mb-0">
+        <table class="data-table">
+            <thead><tr><th>Subject</th><th>Avg Total Marks</th><th>Strength</th></tr></thead>
+            <tbody>
+            {% for m in marks_by_subject %}
+            <tr>
+                <td>{{ m.subject }}</td>
+                <td>{{ m.avg_total }}</td>
+                <td>
+                    {% if m.avg_total >= 20 %}
+                    <span class="badge badge-present">Strong</span>
+                    {% elif m.avg_total >= 10 %}
+                    <span class="badge badge-pending">Average</span>
+                    {% else %}
+                    <span class="badge badge-low">Weak</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const colors = ['#4f46e5','#06b6d4','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899','#14b8a6'];
+    const statusColors = {'Present':'#10b981','Absent':'#ef4444','Late':'#f59e0b','Pending':'#f59e0b','Submitted':'#10b981','Approved':'#4f46e5','Rejected':'#ef4444'};
+
+    // Attendance by Student
+    const attData = {{ att_by_student | tojson }};
+    if (attData.length) {
+        new Chart(document.getElementById('attStudentChart'), {
+            type: 'bar',
+            data: {
+                labels: attData.map(d => d.full_name),
+                datasets: [{
+                    label: 'Attendance %',
+                    data: attData.map(d => d.pct),
+                    backgroundColor: attData.map((d, i) => d.pct < 75 ? '#ef4444' : colors[i % colors.length]),
+                    borderRadius: 6, borderSkipped: false
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } }
+        });
+    }
+
+    // Marks by Subject
+    const marksData = {{ marks_by_subject | tojson }};
+    if (marksData.length) {
+        new Chart(document.getElementById('marksSubjectChart'), {
+            type: 'bar',
+            data: {
+                labels: marksData.map(d => d.subject),
+                datasets: [{
+                    label: 'Avg Marks',
+                    data: marksData.map(d => d.avg_total),
+                    backgroundColor: marksData.map((d, i) => colors[i % colors.length]),
+                    borderRadius: 6, borderSkipped: false
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+        });
+    }
+
+    // Assignment completion
+    const assignData = {{ assign_stats | tojson }};
+    if (assignData.length) {
+        new Chart(document.getElementById('assignChart'), {
+            type: 'doughnut',
+            data: {
+                labels: assignData.map(d => d.status),
+                datasets: [{ data: assignData.map(d => d.cnt), backgroundColor: assignData.map(d => statusColors[d.status] || '#94a3b8'), borderWidth: 0 }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+        });
+    }
+
+    // Project status
+    const projData = {{ project_stats | tojson }};
+    if (projData.length) {
+        new Chart(document.getElementById('projectChart'), {
+            type: 'doughnut',
+            data: {
+                labels: projData.map(d => d.status),
+                datasets: [{ data: projData.map(d => d.cnt), backgroundColor: projData.map(d => statusColors[d.status] || '#94a3b8'), borderWidth: 0 }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+        });
+    }
+});
+</script>
+{% endblock %}

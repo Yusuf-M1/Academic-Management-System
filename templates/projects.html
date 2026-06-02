@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Projects — AMS{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-folder-fill"></i> Project Submission Tracking</h1>
+</div>
+
+<!-- Add Project -->
+<div class="form-card">
+    <h3><i class="bi bi-plus-circle-fill"></i> Add Project Submission</h3>
+    <form method="POST">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Student</label>
+                <select name="student_id" required>
+                    <option value="">Select Student</option>
+                    {% for s in students %}<option value="{{ s.student_id }}">{{ s.roll_number }} — {{ s.full_name }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Project Title</label>
+                <input type="text" name="project_title" required>
+            </div>
+            <div class="form-group">
+                <label>Subject</label>
+                <input type="text" name="subject" required>
+            </div>
+            <div class="form-group">
+                <label>Submission Date</label>
+                <input type="date" name="submission_date">
+            </div>
+            <div class="form-group">
+                <label>Guide Name</label>
+                <input type="text" name="guide_name" required>
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select name="status">
+                    <option value="Pending">Pending</option>
+                    <option value="Submitted">Submitted</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Rejected">Rejected</option>
+                </select>
+            </div>
+            <div class="form-group full-width">
+                <label>Remarks</label>
+                <textarea name="remarks" rows="2"></textarea>
+            </div>
+        </div>
+        <div class="btn-group">
+            <button type="submit" class="btn btn-success"><i class="bi bi-plus-lg"></i> Add Project</button>
+        </div>
+    </form>
+</div>
+
+<!-- Filter -->
+<form class="filter-bar" method="GET">
+    <div class="form-group">
+        <label>Filter by Status</label>
+        <select name="status">
+            <option value="">All</option>
+            <option value="Pending" {% if status_filter=='Pending' %}selected{% endif %}>Pending</option>
+            <option value="Submitted" {% if status_filter=='Submitted' %}selected{% endif %}>Submitted</option>
+            <option value="Approved" {% if status_filter=='Approved' %}selected{% endif %}>Approved</option>
+            <option value="Rejected" {% if status_filter=='Rejected' %}selected{% endif %}>Rejected</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-funnel-fill"></i> Filter</button>
+    <a href="{{ url_for('projects') }}" class="btn btn-sm" style="background:var(--text-muted);color:#fff;">Clear</a>
+</form>
+
+<!-- Table -->
+<div class="table-wrapper">
+    <table class="data-table">
+        <thead><tr><th>ID</th><th>Roll No</th><th>Student</th><th>Project Title</th><th>Subject</th><th>Date</th><th>Guide</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+        {% for r in records %}
+        <tr>
+            <td>{{ r.project_id }}</td>
+            <td>{{ r.roll_number }}</td>
+            <td>{{ r.full_name }}</td>
+            <td>{{ r.project_title }}</td>
+            <td>{{ r.subject }}</td>
+            <td>{{ r.submission_date or '—' }}</td>
+            <td>{{ r.guide_name }}</td>
+            <td><span class="badge badge-{{ r.status|lower }}">{{ r.status }}</span></td>
+            <td>
+                <a href="{{ url_for('edit_project', id=r.project_id) }}" class="btn btn-warning btn-sm"><i class="bi bi-pencil-fill"></i></a>
+                <form action="{{ url_for('delete_project', id=r.project_id) }}" method="POST" style="display:inline;">
+                    <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash-fill"></i></button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% if not records %}
+    <div class="empty-state"><i class="bi bi-inbox"></i><p>No project submissions found.</p></div>
+    {% endif %}
+</div>
+{% endblock %}
